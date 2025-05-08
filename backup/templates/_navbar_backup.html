@@ -83,6 +83,48 @@
   <a href="/mfa">MFA</a>
   <a href="/logout">Logout</a>
 </nav>
+<div class="logo" aria-label="TERMINUSA Logo" style="position: fixed; top: 10px; left: 10px; z-index: 1001;">
+    <img id="terminusaLogo" src="{{ url_for('static', filename='images/terminusa_logo_light.png') }}" alt="TERMINUSA Logo" width="170" height="40" />
+</div>
+
+<script>
+  // Function to check zoom level and toggle logo visibility
+  function checkZoom() {
+    // Detect zoom level using window.devicePixelRatio
+    const zoomLevel = window.devicePixelRatio || 1;
+    const logo = document.getElementById('terminusaLogo');
+    if (zoomLevel > 1) {
+      // Hide logo when zoomed in
+      logo.style.display = 'none';
+    } else {
+      // Show logo when zoomed out or normal
+      logo.style.display = 'block';
+    }
+  }
+
+  // Check zoom on load and on resize
+  window.addEventListener('load', checkZoom);
+  window.addEventListener('resize', checkZoom);
+
+  // Hide logo on scroll and show when scrolling stops
+  let scrollTimeout;
+  const logo = document.getElementById('terminusaLogo');
+
+  window.addEventListener('scroll', () => {
+    if (logo) {
+      logo.style.display = 'none';
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        // Only show logo if zoom level is <= 1
+        const zoomLevel = window.devicePixelRatio || 1;
+        if (zoomLevel <= 1) {
+          logo.style.display = 'block';
+        }
+      }, 300); // 300ms after scroll stops
+    }
+  });
+
+</script>
 
 <script>
   const navToggle = document.getElementById('navToggle');
