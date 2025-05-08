@@ -1,21 +1,12 @@
 from flask import Blueprint, request, jsonify, abort, session, redirect, url_for
-import os
-import json
 from admin.admin_auth import admin_login_required
+from db import SessionLocal, Subscription, User
+from logger import setup_logger
+from datetime import datetime
 
 subscription_bp = Blueprint('subscription', __name__, url_prefix='/admin/subscription')
 
-SUBSCRIPTIONS_FILE = os.path.join(os.path.dirname(__file__), 'subscriptions.json')
-
-def load_subscriptions():
-    if not os.path.exists(SUBSCRIPTIONS_FILE):
-        return {}
-    with open(SUBSCRIPTIONS_FILE, 'r') as f:
-        return json.load(f)
-
-def save_subscriptions(subscriptions):
-    with open(SUBSCRIPTIONS_FILE, 'w') as f:
-        json.dump(subscriptions, f, indent=4)
+logger = setup_logger()
 
 @subscription_bp.before_request
 def require_admin_login():
@@ -25,17 +16,47 @@ def require_admin_login():
 @subscription_bp.route('/', methods=['GET'])
 @admin_login_required
 def get_subscriptions():
-    subscriptions = load_subscriptions()
-    return jsonify(subscriptions)
+    db = SessionLocal()
+    subscriptions = db.query(Subscription).all()
+    result = []
+    for sub in subscriptions:
+        result.append({
+            'id': sub.id,
+            'username': sub.user.username if sub.user else None,
+            'plan': sub.plan,
+            'start_date': sub.start_date.strftime('%Y-%m-%d'),
+            'end_date': sub.end_date.strftime('%Y-%m-%d'),
+            'status': sub.status
+        })
+    db.close()
+    logger.info("Fetched all subscriptions")
+    return jsonify(result)
 
 @subscription_bp.route('/<username>', methods=['GET'])
 @admin_login_required
 def get_subscription(username):
-    subscriptions = load_subscriptions()
-    subscription = subscriptions.get(username)
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        db.close()
+        logger.warning(f"User {username} not found for subscription fetch")
+        abort(404, description="User not found")
+    subscription = db.query(Subscription).filter(Subscription.user_id == user.id).first()
     if not subscription:
+        db.close()
+        logger.warning(f"Subscription for user {username} not found")
         abort(404, description="Subscription not found")
-    return jsonify(subscription)
+    result = {
+        'id': subscription.id,
+        'username': user.username,
+        'plan': subscription.plan,
+        'start_date': subscription.start_date.strftime('%Y-%m-%d'),
+        'end_date': subscription.end_date.strftime('%Y-%m-%d'),
+        'status': subscription.status
+    }
+    db.close()
+    logger.info(f"Fetched subscription for user {username}")
+    return jsonify(result)
 
 @subscription_bp.route('/', methods=['POST'])
 @admin_login_required
@@ -43,41 +64,86 @@ def create_subscription():
     data = request.json
     required_fields = ['username', 'plan', 'start_date', 'end_date', 'status']
     if not all(field in data for field in required_fields):
+        logger.warning("Missing required subscription fields in create_subscription")
         abort(400, description="Missing required subscription fields")
-    subscriptions = load_subscriptions()
-    username = data['username']
-    if username in subscriptions:
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == data['username']).first()
+    if not user:
+        db.close()
+        logger.warning(f"User {data['username']} not found for subscription creation")
+        abort(404, description="User not found")
+    existing_sub = db.query(Subscription).filter(Subscription.user_id == user.id).first()
+    if existing_sub:
+        db.close()
+        logger.warning(f"Subscription already exists for user {data['username']}")
         abort(400, description="Subscription already exists for user")
-    subscriptions[username] = {
-        'plan': data['plan'],
-        'start_date': data['start_date'],
-        'end_date': data['end_date'],
-        'status': data['status']
-    }
-    save_subscriptions(subscriptions)
+    try:
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
+    except ValueError:
+        db.close()
+        logger.warning("Invalid date format in create_subscription")
+        abort(400, description="Invalid date format, expected YYYY-MM-DD")
+    new_sub = Subscription(
+        user_id=user.id,
+        plan=data['plan'],
+        start_date=start_date,
+        end_date=end_date,
+        status=data['status']
+    )
+    db.add(new_sub)
+    db.commit()
+    db.close()
+    logger.info(f"Created subscription for user {data['username']}")
     return jsonify({"message": "Subscription created"}), 201
 
 @subscription_bp.route('/<username>', methods=['PUT'])
 @admin_login_required
 def update_subscription(username):
     data = request.json
-    subscriptions = load_subscriptions()
-    subscription = subscriptions.get(username)
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        db.close()
+        logger.warning(f"User {username} not found for subscription update")
+        abort(404, description="User not found")
+    subscription = db.query(Subscription).filter(Subscription.user_id == user.id).first()
     if not subscription:
+        db.close()
+        logger.warning(f"Subscription for user {username} not found for update")
         abort(404, description="Subscription not found")
     for field in ['plan', 'start_date', 'end_date', 'status']:
         if field in data:
-            subscription[field] = data[field]
-    subscriptions[username] = subscription
-    save_subscriptions(subscriptions)
+            if field in ['start_date', 'end_date']:
+                try:
+                    setattr(subscription, field, datetime.strptime(data[field], '%Y-%m-%d'))
+                except ValueError:
+                    db.close()
+                    logger.warning(f"Invalid date format for {field} in update_subscription")
+                    abort(400, description=f"Invalid date format for {field}, expected YYYY-MM-DD")
+            else:
+                setattr(subscription, field, data[field])
+    db.commit()
+    db.close()
+    logger.info(f"Updated subscription for user {username}")
     return jsonify({"message": "Subscription updated"})
 
 @subscription_bp.route('/<username>', methods=['DELETE'])
 @admin_login_required
 def delete_subscription(username):
-    subscriptions = load_subscriptions()
-    if username not in subscriptions:
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        db.close()
+        logger.warning(f"User {username} not found for subscription deletion")
+        abort(404, description="User not found")
+    subscription = db.query(Subscription).filter(Subscription.user_id == user.id).first()
+    if not subscription:
+        db.close()
+        logger.warning(f"Subscription for user {username} not found for deletion")
         abort(404, description="Subscription not found")
-    del subscriptions[username]
-    save_subscriptions(subscriptions)
+    db.delete(subscription)
+    db.commit()
+    db.close()
+    logger.info(f"Deleted subscription for user {username}")
     return jsonify({"message": "Subscription deleted"})

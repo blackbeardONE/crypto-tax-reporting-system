@@ -162,17 +162,6 @@
                 padding: 2em 1.5em;
                 box-shadow: none;
             }
-            .login-links {
-                flex-direction: column;
-                gap: 0.5em;
-            }
-            .nav-buttons {
-                flex-direction: column;
-                gap: 0.5em;
-            }
-            .nav-buttons button {
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -251,11 +240,11 @@
             if (document.referrer && allowedReferrers.includes(document.referrer)) {
                 window.history.back();
             } else {
-                window.location.href = "{{ url_for('dashboard') }}";
+                window.location.href = "{{ url_for('index') }}";
             }
         }
         function goHome() {
-            window.location.href = "{{ url_for('landing') }}";
+            window.location.href = "{{ url_for('index') }}";
         }
     </script>
 </body>
