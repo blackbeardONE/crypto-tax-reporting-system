@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel - Reports Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        tr:hover { background-color: #f5f5f5; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Reports Management</h1>
+    <table id="reportsTable">
+        <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>User ID</th>
+                <th>Generated At</th>
+                <th>File Path</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Report rows will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchReports() {
+            const res = await fetch('/admin/reports/');
+            const reports = await res.json();
+            const tbody = document.querySelector('#reportsTable tbody');
+            tbody.innerHTML = '';
+            for (const reportId in reports) {
+                const report = reports[reportId];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${reportId}</td>
+                    <td>${report.user_id}</td>
+                    <td>${report.generated_at}</td>
+                    <td>${report.file_path}</td>
+                    <td>
+                        <button onclick="deleteReport('${reportId}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        async function deleteReport(reportId) {
+            if (!confirm(`Delete report ${reportId}?`)) return;
+            const res = await fetch(`/admin/reports/${reportId}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert('Report deleted');
+                fetchReports();
+            } else {
+                alert('Failed to delete report');
+            }
+        }
+
+        // Initial load
+        fetchReports();
+    </script>
+</body>
+</html>

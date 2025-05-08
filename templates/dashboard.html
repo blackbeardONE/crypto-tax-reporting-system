@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terminusa Crypto Tax Reporting System - Dashboard</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 2em;
+            background-color: #f9fafb;
+            color: #111827;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 2.5em 3em;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 1.5em;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 1.5em;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75em 1em;
+            margin-top: 0.5em;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-size: 1rem;
+            color: #111827;
+            outline-offset: 2px;
+            transition: border-color 0.2s ease-in-out;
+        }
+        input[type="text"]:focus {
+            border-color: #a6ff00;
+            box-shadow: 0 0 0 3px rgb(166 255 0 / 0.5);
+        }
+        button {
+            margin-top: 2em;
+            padding: 0.75em;
+            width: 100%;
+            background-color: #a6ff00;
+            border: none;
+            color: #111827;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        button:hover {
+            background-color: #84cc16;
+        }
+        #status {
+            margin-top: 2em;
+            padding: 1em;
+            background-color: #e5e7eb;
+            border-radius: 8px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            color: #374151;
+        }
+        #spinner {
+            display: none;
+            margin-top: 1em;
+            text-align: center;
+        }
+        #report-history {
+            margin-top: 3em;
+        }
+        #report-history h2 {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1em;
+            color: #4b5563;
+        }
+        #report-list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+        #report-list li {
+            padding: 0.75em 1em;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #report-list li:last-child {
+            border-bottom: none;
+        }
+        .report-date {
+            color: #6b7280;
+        }
+        .report-actions button {
+            background-color: #a6ff00;
+            border: none;
+            color: #111827;
+            font-weight: 600;
+            padding: 0.3em 0.75em;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 0.5em;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .report-actions button:hover {
+            background-color: #84cc16;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+    <div class="container">
+        <h1>Terminusa Crypto Tax Reporting System</h1>
+        <label for="user_id">Enter Ethereum Address</label>
+        <input type="text" id="user_id" name="user_id" placeholder="0x..." />
+        <button id="generateBtn">Generate Tax Report</button>
+        <div id="spinner">Generating report, please wait...</div>
+        <div id="status">Status: Waiting for input...</div>
+
+        <div id="report-history">
+            <h2>Report History</h2>
+            <ul id="report-list">
+                <!-- Report items will be appended here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const userIdInput = document.getElementById('user_id');
+        const statusDiv = document.getElementById('status');
+        const spinner = document.getElementById('spinner');
+        const reportList = document.getElementById('report-list');
+
+        let pollingInterval = null;
+        let reportHistory = [];
+
+        function updateStatus(message) {
+            statusDiv.textContent = message;
+        }
+
+        function showSpinner(show) {
+            spinner.style.display = show ? 'block' : 'none';
+        }
+
+        function addReportToHistory(userId, reportText) {
+            const timestamp = new Date().toLocaleString();
+            reportHistory.unshift({ userId, reportText, timestamp });
+            renderReportHistory();
+        }
+
+        function renderReportHistory() {
+            reportList.innerHTML = '';
+            reportHistory.forEach((report, index) => {
+                const li = document.createElement('li');
+                const dateSpan = document.createElement('span');
+                dateSpan.className = 'report-date';
+                dateSpan.textContent = report.timestamp;
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'report-actions';
+
+                const viewBtn = document.createElement('button');
+                viewBtn.textContent = 'View';
+                viewBtn.onclick = () => alert(report.reportText);
+
+                const exportBtn = document.createElement('button');
+                exportBtn.textContent = 'Export CSV';
+                exportBtn.onclick = () => exportCSV(report.reportText);
+
+                actionsDiv.appendChild(viewBtn);
+                actionsDiv.appendChild(exportBtn);
+
+                li.textContent = `Report for ${report.userId} - `;
+                li.appendChild(dateSpan);
+                li.appendChild(actionsDiv);
+
+                reportList.appendChild(li);
+            });
+        }
+
+        function exportCSV(reportText) {
+            // Simple CSV export simulation
+            const blob = new Blob([reportText], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tax_report.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function pollStatus(userId) {
+            pollingInterval = setInterval(() => {
+                fetch(`/status/${userId}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        updateStatus(data);
+                        if (data.toLowerCase().includes('completed') || data.toLowerCase().includes('error') || data.toLowerCase().includes('no transactions found')) {
+                            clearInterval(pollingInterval);
+                            showSpinner(false);
+                            if (!data.toLowerCase().includes('error') && !data.toLowerCase().includes('no transactions found')) {
+                                addReportToHistory(userId, data);
+                            }
+                        }
+                        if (data.toLowerCase().includes('no transactions found')) {
+                            updateStatus('No transactions found for this wallet address. Cannot generate report.');
+                        }
+                    })
+                    .catch(err => {
+                        updateStatus('Error fetching status.');
+                        clearInterval(pollingInterval);
+                        showSpinner(false);
+                    });
+            }, 3000);
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const userId = userIdInput.value.trim();
+            if (!userId) {
+                alert('Please enter an Ethereum address.');
+                return;
+            }
+            updateStatus('Starting report generation...');
+            showSpinner(true);
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `user_id=${encodeURIComponent(userId)}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    updateStatus('Report generation started. Polling status...');
+                    pollStatus(userId);
+                } else {
+                    updateStatus('Failed to start report generation.');
+                    showSpinner(false);
+                }
+            })
+            .catch(() => {
+                updateStatus('Network error.');
+                showSpinner(false);
+            });
+        });
+    </script>
+</body>
+</html>

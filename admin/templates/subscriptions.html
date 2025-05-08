@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel - Subscription Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        tr:hover { background-color: #f5f5f5; }
+        button { margin: 5px; }
+        input[type="text"], input[type="date"], select {
+            width: 100%; padding: 6px; margin: 4px 0; box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>Subscription Management</h1>
+    <button onclick="showCreateForm()">Create New Subscription</button>
+    <table id="subscriptionsTable">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Plan</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Subscription rows will be populated here -->
+        </tbody>
+    </table>
+
+    <div id="subscriptionForm" style="display:none; margin-top:20px;">
+        <h2 id="formTitle">Create Subscription</h2>
+        <form id="form" onsubmit="submitForm(event)">
+            <input type="hidden" id="username" name="username" />
+            <label>Username:</label><br/>
+            <input type="text" id="inputUsername" name="inputUsername" required /><br/>
+            <label>Plan:</label><br/>
+            <select id="plan" name="plan" required>
+                <option value="basic">Basic</option>
+                <option value="premium">Premium</option>
+                <option value="enterprise">Enterprise</option>
+            </select><br/>
+            <label>Start Date:</label><br/>
+            <input type="date" id="startDate" name="startDate" required /><br/>
+            <label>End Date:</label><br/>
+            <input type="date" id="endDate" name="endDate" required /><br/>
+            <label>Status:</label><br/>
+            <select id="status" name="status" required>
+                <option value="active">Active</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="expired">Expired</option>
+            </select><br/><br/>
+            <button type="submit">Save</button>
+            <button type="button" onclick="hideForm()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        async function fetchSubscriptions() {
+            const res = await fetch('/admin/subscription/');
+            const subscriptions = await res.json();
+            const tbody = document.querySelector('#subscriptionsTable tbody');
+            tbody.innerHTML = '';
+            for (const username in subscriptions) {
+                const sub = subscriptions[username];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${username}</td>
+                    <td>${sub.plan || ''}</td>
+                    <td>${sub.start_date || ''}</td>
+                    <td>${sub.end_date || ''}</td>
+                    <td>${sub.status || ''}</td>
+                    <td>
+                        <button onclick="editSubscription('${username}')">Edit</button>
+                        <button onclick="deleteSubscription('${username}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function showCreateForm() {
+            document.getElementById('formTitle').textContent = 'Create Subscription';
+            document.getElementById('username').value = '';
+            document.getElementById('inputUsername').value = '';
+            document.getElementById('inputUsername').disabled = false;
+            document.getElementById('plan').value = 'basic';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('status').value = 'active';
+            document.getElementById('subscriptionForm').style.display = 'block';
+        }
+
+        async function editSubscription(username) {
+            const res = await fetch(`/admin/subscription/${username}`);
+            if (!res.ok) {
+                alert('Failed to fetch subscription data');
+                return;
+            }
+            const sub = await res.json();
+            document.getElementById('formTitle').textContent = 'Edit Subscription';
+            document.getElementById('username').value = username;
+            document.getElementById('inputUsername').value = username;
+            document.getElementById('inputUsername').disabled = true;
+            document.getElementById('plan').value = sub.plan || 'basic';
+            document.getElementById('startDate').value = sub.start_date || '';
+            document.getElementById('endDate').value = sub.end_date || '';
+            document.getElementById('status').value = sub.status || 'active';
+            document.getElementById('subscriptionForm').style.display = 'block';
+        }
+
+        async function deleteSubscription(username) {
+            if (!confirm(`Delete subscription for user ${username}?`)) return;
+            const res = await fetch(`/admin/subscription/${username}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert('Subscription deleted');
+                fetchSubscriptions();
+            } else {
+                alert('Failed to delete subscription');
+            }
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const inputUsername = document.getElementById('inputUsername').value;
+            const plan = document.getElementById('plan').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const status = document.getElementById('status').value;
+
+            const subData = {
+                username: inputUsername,
+                plan: plan,
+                start_date: startDate,
+                end_date: endDate,
+                status: status
+            };
+
+            let res;
+            if (username) {
+                // Update existing subscription
+                res = await fetch(`/admin/subscription/${username}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(subData)
+                });
+            } else {
+                // Create new subscription
+                res = await fetch('/admin/subscription/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(subData)
+                });
+            }
+
+            if (res.ok) {
+                alert('Subscription saved successfully');
+                hideForm();
+                fetchSubscriptions();
+            } else {
+                const error = await res.json();
+                alert('Error: ' + (error.description || 'Unknown error'));
+            }
+        }
+
+        function hideForm() {
+            document.getElementById('subscriptionForm').style.display = 'none';
+        }
+
+        // Initial load
+        fetchSubscriptions();
+    </script>
+</body>
+</html>

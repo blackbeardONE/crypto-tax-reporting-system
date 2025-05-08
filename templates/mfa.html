@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MFA Management - Terminusa Crypto Tax Reporting System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(90deg, #4b0082 0%, #006400 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mfa-wrapper {
+            background: white;
+            color: #4b0082;
+            border-radius: 20px;
+            width: 400px;
+            padding: 3em 2.5em;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 1.5em;
+            text-align: center;
+            color: #4b0082;
+        }
+        label {
+            display: block;
+            margin-top: 1em;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4b0082;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75em 1em;
+            margin-top: 0.5em;
+            border: 1px solid #a020f0;
+            border-radius: 9999px;
+            font-size: 1rem;
+            color: #4b0082;
+            outline-offset: 2px;
+            transition: border-color 0.2s ease-in-out;
+        }
+        input[type="text"]:focus {
+            border-color: #006400;
+            box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.5);
+        }
+        button {
+            margin-top: 2em;
+            padding: 0.75em 1.5em;
+            background-color: #4b0082;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        button:hover {
+            background-color: #6a0dad;
+        }
+        .message {
+            margin-top: 1em;
+            font-weight: 600;
+            text-align: center;
+        }
+        .enabled {
+            color: #22c55e;
+        }
+        .disabled {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="mfa-wrapper" role="main">
+        <h1>MFA Management</h1>
+        <p id="status-msg" class="message">Loading MFA status...</p>
+        <label for="mfa-code-input">Enter MFA Code</label>
+        <input type="text" id="mfa-code-input" placeholder="Enter MFA code" aria-describedby="status-msg" />
+        <button id="verify-btn">Verify MFA Code</button>
+        <p id="verify-msg" class="message"></p>
+    </div>
+    <script>
+        async function fetchMfaStatus() {
+            try {
+                const response = await fetch('/api/mfa/status');
+                if (!response.ok) throw new Error('Failed to fetch MFA status');
+                const data = await response.json();
+                const statusMsg = document.getElementById('status-msg');
+                if (data.enabled) {
+                    statusMsg.textContent = 'MFA is currently enabled.';
+                    statusMsg.className = 'message enabled';
+                } else {
+                    statusMsg.textContent = 'MFA is currently disabled.';
+                    statusMsg.className = 'message disabled';
+                }
+            } catch (error) {
+                const statusMsg = document.getElementById('status-msg');
+                statusMsg.textContent = 'Error loading MFA status.';
+                statusMsg.className = 'message disabled';
+            }
+        }
+
+        async function verifyMfaCode() {
+            const codeInput = document.getElementById('mfa-code-input');
+            const verifyMsg = document.getElementById('verify-msg');
+            const code = codeInput.value.trim();
+            if (!code) {
+                verifyMsg.textContent = 'Please enter an MFA code.';
+                verifyMsg.className = 'message disabled';
+                return;
+            }
+            try {
+                const response = await fetch('/api/mfa/verify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({code})
+                });
+                const result = await response.json();
+                if (response.ok && result.verified) {
+                    verifyMsg.textContent = 'MFA code verified successfully.';
+                    verifyMsg.className = 'message enabled';
+                } else {
+                    verifyMsg.textContent = 'Invalid MFA code.';
+                    verifyMsg.className = 'message disabled';
+                }
+            } catch (error) {
+                verifyMsg.textContent = 'Error verifying MFA code.';
+                verifyMsg.className = 'message disabled';
+            }
+        }
+
+        document.getElementById('verify-btn').addEventListener('click', verifyMfaCode);
+
+        fetchMfaStatus();
+    </script>
+</body>
+</html>

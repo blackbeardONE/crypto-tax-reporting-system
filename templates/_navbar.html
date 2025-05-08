@@ -1,0 +1,12 @@
+<nav style="background-color: #4b0082; padding: 1em; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 600;">
+    <div>
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none; margin-right: 1em;">Dashboard</a>
+        <a href="{{ url_for('profile') }}" style="color: white; text-decoration: none; margin-right: 1em;">Profile</a>
+        <a href="{{ url_for('billing') }}" style="color: white; text-decoration: none; margin-right: 1em;">Billing</a>
+        <a href="{{ url_for('mfa') }}" style="color: white; text-decoration: none; margin-right: 1em;">MFA</a>
+        <a href="{{ url_for('help') }}" style="color: white; text-decoration: none;">Help</a>
+    </div>
+    <div>
+        <a href="{{ url_for('auth.logout') }}" style="color: white; text-decoration: none;">Logout</a>
+    </div>
+</nav>

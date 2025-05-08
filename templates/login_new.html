@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Terminusa Crypto Tax Reporting System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(90deg, #4b0082 0%, #006400 100%);
+            color: #4b0082;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-wrapper {
+            display: flex;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            background: white;
+        }
+        .login-image {
+            background-color: #4b0082;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            width: 300px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .login-container {
+            flex: 1;
+            padding: 3em 3em 2em 3em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #4b0082;
+            border-radius: 0 20px 20px 0;
+        }
+        h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 2em;
+            text-align: center;
+            color: #4b0082;
+        }
+        label {
+            display: block;
+            margin-top: 1em;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4b0082;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75em 1em;
+            margin-top: 0.5em;
+            border: 2px solid #6a0dad;
+            border-radius: 9999px;
+            font-size: 1rem;
+            color: #4b0082;
+            outline-offset: 2px;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background: white;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #4b0082;
+            box-shadow: 0 0 0 3px rgba(75, 0, 130, 0.3);
+        }
+        input[type="submit"] {
+            margin-top: 2em;
+            padding: 0.75em;
+            width: 100%;
+            background-color: #4b0082;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        input[type="submit"]:hover {
+            background-color: #6a0dad;
+        }
+        .error {
+            color: #ff4d4f;
+            margin-top: 1em;
+            text-align: center;
+            font-weight: 600;
+        }
+        .login-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5em;
+            font-size: 0.9rem;
+            color: #4b0082;
+        }
+        .login-links a {
+            color: #6a0dad;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 2em;
+        }
+        .nav-buttons button {
+            background-color: #4b0082;
+            border: none;
+            color: white;
+            padding: 0.4em 1.2em;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.9rem;
+        }
+        .nav-buttons button:hover {
+            background-color: #6a0dad;
+        }
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+                max-height: none;
+                border-radius: 0;
+                box-shadow: none;
+                background: white;
+            }
+            .login-image {
+                border-radius: 0;
+                height: 150px;
+                font-size: 1.5rem;
+                width: 100%;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+            .login-container {
+                border-radius: 0;
+                width: 100%;
+                padding: 2em 1.5em;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper" role="main" aria-label="Login form">
+        <div class="login-image" aria-label="Terminusa logo and branding" role="img">
+            TERMINUSA
+        </div>
+        <div class="login-container">
+            <h1>Hi there, welcome back to Terminusa!</h1>
+            <form method="post" action="{{ url_for('auth.login') }}" aria-labelledby="login-header" role="form" id="loginForm" novalidate>
+                {% if error %}
+                <p class="error" role="alert">{{ error }}</p>
+                {% endif %}
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required aria-required="true" autocomplete="username" />
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required aria-required="true" autocomplete="current-password" />
+                <input type="submit" value="Login" />
+            </form>
+            <div class="login-links">
+                <a href="{{ url_for('auth.forgot_password') }}">Forgot password</a>
+                <a href="{{ url_for('auth.register') }}">Create account</a>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" onclick="goBack()" aria-label="Go back to previous page">Back</button>
+                <button type="button" onclick="goHome()" aria-label="Go to home page">Home</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', function(event) {
+            // Clear previous errors
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(el => el.remove());
+
+            let valid = true;
+
+            // Username required
+            const username = loginForm.username.value.trim();
+            if (!username) {
+                showError('username', 'Username is required');
+                valid = false;
+            }
+
+            // Password required
+            const password = loginForm.password.value;
+            if (!password) {
+                showError('password', 'Password is required');
+                valid = false;
+            }
+
+            if (!valid) {
+                event.preventDefault();
+            }
+        });
+
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const error = document.createElement('div');
+            error.className = 'error-message';
+            error.style.color = '#ff4d4f';
+            error.style.fontWeight = '600';
+            error.style.marginTop = '0.25em';
+            error.textContent = message;
+            field.parentNode.insertBefore(error, field.nextSibling);
+        }
+
+        function goBack() {
+            const allowedReferrers = [
+                "{{ url_for('auth.login') }}",
+                "{{ url_for('auth.register') }}",
+                "{{ url_for('auth.forgot_password') }}"
+            ];
+            if (document.referrer && allowedReferrers.includes(document.referrer)) {
+                window.history.back();
+            } else {
+                window.location.href = "{{ url_for('index') }}";
+            }
+        }
+        function goHome() {
+            window.location.href = "{{ url_for('index') }}";
+        }
+    </script>
+</body>
+</html>

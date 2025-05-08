@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Billing & Subscription - Terminusa Crypto Tax Reporting System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 2em;
+        }
+        .container {
+            background: white;
+            padding: 2.5em 3em;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 1.5em;
+            text-align: center;
+        }
+        .subscription-plan {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 1.5em;
+            margin-bottom: 2em;
+            background-color: #f3f4f6;
+        }
+        .subscription-plan h2 {
+            margin: 0 0 0.5em 0;
+            font-weight: 600;
+            color: #374151;
+        }
+        .subscription-plan p {
+            margin: 0.25em 0;
+            color: #6b7280;
+        }
+        .subscription-actions button {
+            margin-top: 1em;
+            padding: 0.5em 1.5em;
+            background-color: #a6ff00;
+            border: none;
+            color: #111827;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .subscription-actions button:hover {
+            background-color: #84cc16;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2em;
+        }
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 0.75em 1em;
+            text-align: left;
+            color: #374151;
+        }
+        th {
+            background-color: #e5e7eb;
+            font-weight: 600;
+        }
+        .payment-methods {
+            margin-top: 2em;
+        }
+        .payment-methods h2 {
+            font-weight: 600;
+            color: #374151;
+        }
+        .payment-methods p {
+            color: #6b7280;
+        }
+        .add-payment-method {
+            margin-top: 1em;
+        }
+        .add-payment-method input[type="text"] {
+            padding: 0.5em 1em;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-size: 1rem;
+            width: 300px;
+            margin-right: 1em;
+            outline-offset: 2px;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .add-payment-method input[type="text"]:focus {
+            border-color: #a6ff00;
+            box-shadow: 0 0 0 3px rgb(166 255 0 / 0.5);
+        }
+        .add-payment-method button {
+            padding: 0.5em 1.5em;
+            background-color: #4b0082;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .add-payment-method button:hover {
+            background-color: #6a0dad;
+        }
+    </style>
+</head>
+<body>
+    <main class="container" role="main">
+        <h1>Billing & Subscription</h1>
+        <section class="subscription-plan" aria-labelledby="current-plan-header">
+            <h2 id="current-plan-header">Current Plan: Free Tier</h2>
+            <p>Monthly Price: $0</p>
+            <p>Features: Basic report generation, limited API calls</p>
+            <div class="subscription-actions">
+                <button aria-label="Upgrade Plan" id="upgrade-plan-btn">Upgrade Plan</button>
+            </div>
+        </section>
+
+        <section aria-labelledby="billing-history-header">
+            <h2 id="billing-history-header">Billing History</h2>
+            <table role="table" aria-describedby="billing-history-desc">
+                <caption id="billing-history-desc">List of past billing transactions</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Transaction ID</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="billing-history-body">
+                    <tr>
+                        <td>Loading...</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="payment-methods" aria-labelledby="payment-methods-header">
+            <h2 id="payment-methods-header">Payment Methods</h2>
+            <p id="payment-methods-msg">Loading payment methods...</p>
+            <div class="add-payment-method">
+                <label for="new-payment-method" class="sr-only">Add new payment method</label>
+                <input type="text" id="new-payment-method" placeholder="Add new payment method (e.g., card number)" />
+                <button aria-label="Add payment method" id="add-payment-method-btn">Add</button>
+            </div>
+        </section>
+    </main>
+    <script>
+        async function fetchBillingHistory() {
+            try {
+                const response = await fetch('/api/billing/history');
+                if (!response.ok) throw new Error('Failed to fetch billing history');
+                const history = await response.json();
+                const tbody = document.getElementById('billing-history-body');
+                tbody.innerHTML = '';
+                if (history.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No billing history found.</td></tr>';
+                    return;
+                }
+                history.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>$${item.amount}</td>
+                        <td>${item.transaction_id}</td>
+                        <td>${item.status}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                const tbody = document.getElementById('billing-history-body');
+                tbody.innerHTML = '<tr><td colspan="4">Error loading billing history.</td></tr>';
+            }
+        }
+
+        async function fetchPaymentMethods() {
+            try {
+                const response = await fetch('/api/billing/payment-methods');
+                if (!response.ok) throw new Error('Failed to fetch payment methods');
+                const methods = await response.json();
+                const msg = document.getElementById('payment-methods-msg');
+                if (methods.length === 0) {
+                    msg.textContent = 'No payment methods added yet.';
+                } else {
+                    msg.textContent = '';
+                    // Optionally list payment methods here
+                }
+            } catch (error) {
+                const msg = document.getElementById('payment-methods-msg');
+                msg.textContent = 'Error loading payment methods.';
+            }
+        }
+
+        async function addPaymentMethod() {
+            const input = document.getElementById('new-payment-method');
+            const method = input.value.trim();
+            const msg = document.getElementById('payment-methods-msg');
+            if (!method) {
+                msg.textContent = 'Please enter a payment method.';
+                return;
+            }
+            try {
+                const response = await fetch('/api/billing/payment-methods', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({method})
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    msg.textContent = result.message || 'Payment method added.';
+                    input.value = '';
+                    fetchPaymentMethods();
+                } else {
+                    msg.textContent = result.error || 'Failed to add payment method.';
+                }
+            } catch (error) {
+                msg.textContent = 'Error adding payment method.';
+            }
+        }
+
+        document.getElementById('add-payment-method-btn').addEventListener('click', addPaymentMethod);
+
+        document.getElementById('upgrade-plan-btn').addEventListener('click', () => {
+            alert('Upgrade plan feature is not implemented yet.');
+        });
+
+        // Initial fetches
+        fetchBillingHistory();
+        fetchPaymentMethods();
+    </script>
+</body>
+</html>

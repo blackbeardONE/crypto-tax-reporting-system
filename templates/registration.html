@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register - Terminusa Crypto Tax Reporting System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(90deg, #4b0082 0%, #006400 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .register-wrapper {
+            display: flex;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+        }
+        .register-image {
+            background: radial-gradient(circle at center, #6a0dad 0%, #4b0082 100%);
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        .register-container {
+            background: white;
+            color: #4b0082;
+            border-radius: 20px 0 0 20px;
+            width: 400px;
+            padding: 3em 2.5em;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .register-header {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 1.5em;
+            text-align: center;
+            color: #4b0082;
+        }
+        label {
+            display: block;
+            margin-top: 1em;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4b0082;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 0.75em 1em;
+            margin-top: 0.5em;
+            border: 1px solid #a020f0;
+            border-radius: 9999px;
+            font-size: 1rem;
+            color: #4b0082;
+            outline-offset: 2px;
+            transition: border-color 0.2s ease-in-out;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            border-color: #006400;
+            box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.5);
+        }
+        input[type="submit"] {
+            margin-top: 2em;
+            padding: 0.75em;
+            width: 100%;
+            background-color: #4b0082;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        input[type="submit"]:hover {
+            background-color: #6a0dad;
+        }
+        .error {
+            color: #ff4d4f;
+            margin-top: 1em;
+            text-align: center;
+            font-weight: 600;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5em;
+            font-size: 0.9rem;
+            color: #4b0082;
+        }
+        .login-link a {
+            color: #6a0dad;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .captcha-placeholder {
+            margin-top: 1.5em;
+            padding: 1em;
+            background-color: #e5e7eb;
+            border-radius: 8px;
+            color: #4b0082;
+            text-align: center;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .register-wrapper {
+                flex-direction: column;
+                max-height: none;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .register-image {
+                border-radius: 0;
+                height: 150px;
+                font-size: 1.5rem;
+            }
+            .register-container {
+                border-radius: 0;
+                width: 100%;
+                padding: 2em 1.5em;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-wrapper" role="main">
+        <div class="register-image" aria-label="Terminusa logo and branding" role="img">
+            TERMINUSA
+        </div>
+        <div class="register-container">
+            <form id="registerForm" method="post" action="{{ url_for('auth.register') }}" aria-labelledby="register-header" role="form" novalidate>
+                <h1 class="register-header" id="register-header">Create Account</h1>
+                {% if error %}
+                <p class="error" role="alert">{{ error }}</p>
+                {% endif %}
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required aria-required="true" />
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required aria-required="true" />
+
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required aria-required="true" />
+
+                <label for="complete_name">Complete Name (Optional)</label>
+                <input type="text" id="complete_name" name="complete_name" aria-required="false" />
+
+                <label for="company_name">Company Name (Optional)</label>
+                <input type="text" id="company_name" name="company_name" aria-required="false" />
+
+                <label for="company_email">Email</label>
+                <input type="email" id="company_email" name="company_email" required aria-required="true" />
+
+                <label for="company_phone">Phone Number (Optional)</label>
+                <input type="text" id="company_phone" name="company_phone" aria-required="false" />
+
+                <div class="captcha-placeholder">
+                    CAPTCHA placeholder - integrate CAPTCHA here
+                </div>
+
+                <input type="submit" value="Register" />
+                <p class="login-link">
+                    Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        registerForm.addEventListener('submit', function(event) {
+            // Clear previous errors
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(el => el.remove());
+
+            let valid = true;
+
+            // Username required
+            const username = registerForm.username.value.trim();
+            if (!username) {
+                showError('username', 'Username is required');
+                valid = false;
+            }
+
+            // Password required
+            const password = registerForm.password.value;
+            if (!password) {
+                showError('password', 'Password is required');
+                valid = false;
+            }
+
+            // Confirm password required and match
+            const confirmPassword = registerForm.confirm_password.value;
+            if (!confirmPassword) {
+                showError('confirm_password', 'Please confirm your password');
+                valid = false;
+            } else if (password !== confirmPassword) {
+                showError('confirm_password', 'Passwords do not match');
+                valid = false;
+            }
+
+            // Email required and format
+            const email = registerForm.company_email.value.trim();
+            if (!email) {
+                showError('company_email', 'Email is required');
+                valid = false;
+            } else if (!validateEmail(email)) {
+                showError('company_email', 'Invalid email format');
+                valid = false;
+            }
+
+            if (!valid) {
+                event.preventDefault();
+            }
+        });
+
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const error = document.createElement('div');
+            error.className = 'error-message';
+            error.style.color = '#ff4d4f';
+            error.style.fontWeight = '600';
+            error.style.marginTop = '0.25em';
+            error.textContent = message;
+            field.parentNode.insertBefore(error, field.nextSibling);
+        }
+
+        function validateEmail(email) {
+            const re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel - Frontend Settings</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], textarea {
+            width: 100%; padding: 6px; margin: 4px 0; box-sizing: border-box;
+        }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Settings</h1>
+    <form id="settingsForm" onsubmit="submitForm(event)">
+        <label for="siteTitle">Site Title:</label>
+        <input type="text" id="siteTitle" name="siteTitle" />
+
+        <label for="primaryColor">Primary Color:</label>
+        <input type="text" id="primaryColor" name="primaryColor" placeholder="#007bff" />
+
+        <label for="secondaryColor">Secondary Color:</label>
+        <input type="text" id="secondaryColor" name="secondaryColor" placeholder="#6c757d" />
+
+        <label for="fontFamily">Font Family:</label>
+        <input type="text" id="fontFamily" name="fontFamily" placeholder="Arial, sans-serif" />
+
+        <label for="customCSS">Custom CSS:</label>
+        <textarea id="customCSS" name="customCSS" rows="6"></textarea>
+
+        <button type="submit">Save Settings</button>
+    </form>
+
+    <script>
+        async function loadSettings() {
+            const res = await fetch('/admin/frontend-settings/');
+            if (!res.ok) {
+                alert('Failed to load settings');
+                return;
+            }
+            const settings = await res.json();
+            document.getElementById('siteTitle').value = settings.siteTitle || '';
+            document.getElementById('primaryColor').value = settings.primaryColor || '';
+            document.getElementById('secondaryColor').value = settings.secondaryColor || '';
+            document.getElementById('fontFamily').value = settings.fontFamily || '';
+            document.getElementById('customCSS').value = settings.customCSS || '';
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            const settings = {
+                siteTitle: document.getElementById('siteTitle').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                secondaryColor: document.getElementById('secondaryColor').value,
+                fontFamily: document.getElementById('fontFamily').value,
+                customCSS: document.getElementById('customCSS').value
+            };
+            const res = await fetch('/admin/frontend-settings/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            });
+            if (res.ok) {
+                alert('Settings saved successfully');
+            } else {
+                alert('Failed to save settings');
+            }
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>

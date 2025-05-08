@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel - User Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        tr:hover { background-color: #f5f5f5; }
+        button { margin: 5px; }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%; padding: 6px; margin: 4px 0; box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Management</h1>
+    <button onclick="showCreateForm()">Create New User</button>
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Complete Name</th>
+                <th>Company Name</th>
+                <th>Company Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- User rows will be populated here -->
+        </tbody>
+    </table>
+
+    <div id="userForm" style="display:none; margin-top:20px;">
+        <h2 id="formTitle">Create User</h2>
+        <form id="form" onsubmit="submitForm(event)">
+            <input type="hidden" id="username" name="username" />
+            <label>Username:</label><br/>
+            <input type="text" id="inputUsername" name="inputUsername" required /><br/>
+            <label>Password:</label><br/>
+            <input type="password" id="password" name="password" required /><br/>
+            <label>Complete Name:</label><br/>
+            <input type="text" id="completeName" name="completeName" required /><br/>
+            <label>Company Name:</label><br/>
+            <input type="text" id="companyName" name="companyName" required /><br/>
+            <label>Company Address:</label><br/>
+            <input type="text" id="companyAddress" name="companyAddress" required /><br/>
+            <label>Company Email:</label><br/>
+            <input type="email" id="companyEmail" name="companyEmail" required /><br/>
+            <label>Company Phone:</label><br/>
+            <input type="text" id="companyPhone" name="companyPhone" required /><br/>
+            <label>Company Logo URL:</label><br/>
+            <input type="text" id="companyLogo" name="companyLogo" /><br/><br/>
+            <button type="submit">Save</button>
+            <button type="button" onclick="hideForm()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        async function fetchUsers() {
+            const res = await fetch('/admin/users');
+            const users = await res.json();
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            for (const username in users) {
+                const user = users[username];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${username}</td>
+                    <td>${user.complete_name || ''}</td>
+                    <td>${user.company_name || ''}</td>
+                    <td>${user.company_email || ''}</td>
+                    <td>
+                        <button onclick="editUser('${username}')">Edit</button>
+                        <button onclick="deleteUser('${username}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function showCreateForm() {
+            document.getElementById('formTitle').textContent = 'Create User';
+            document.getElementById('username').value = '';
+            document.getElementById('inputUsername').value = '';
+            document.getElementById('inputUsername').disabled = false;
+            document.getElementById('password').value = '';
+            document.getElementById('completeName').value = '';
+            document.getElementById('companyName').value = '';
+            document.getElementById('companyAddress').value = '';
+            document.getElementById('companyEmail').value = '';
+            document.getElementById('companyPhone').value = '';
+            document.getElementById('companyLogo').value = '';
+            document.getElementById('userForm').style.display = 'block';
+        }
+
+        async function editUser(username) {
+            const res = await fetch(`/admin/users/${username}`);
+            if (!res.ok) {
+                alert('Failed to fetch user data');
+                return;
+            }
+            const user = await res.json();
+            document.getElementById('formTitle').textContent = 'Edit User';
+            document.getElementById('username').value = username;
+            document.getElementById('inputUsername').value = username;
+            document.getElementById('inputUsername').disabled = true;
+            document.getElementById('password').value = '';
+            document.getElementById('completeName').value = user.complete_name || '';
+            document.getElementById('companyName').value = user.company_name || '';
+            document.getElementById('companyAddress').value = user.company_address || '';
+            document.getElementById('companyEmail').value = user.company_email || '';
+            document.getElementById('companyPhone').value = user.company_phone || '';
+            document.getElementById('companyLogo').value = user.company_logo || '';
+            document.getElementById('userForm').style.display = 'block';
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`Delete user ${username}?`)) return;
+            const res = await fetch(`/admin/users/${username}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert('User deleted');
+                fetchUsers();
+            } else {
+                alert('Failed to delete user');
+            }
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const inputUsername = document.getElementById('inputUsername').value;
+            const password = document.getElementById('password').value;
+            const completeName = document.getElementById('completeName').value;
+            const companyName = document.getElementById('companyName').value;
+            const companyAddress = document.getElementById('companyAddress').value;
+            const companyEmail = document.getElementById('companyEmail').value;
+            const companyPhone = document.getElementById('companyPhone').value;
+            const companyLogo = document.getElementById('companyLogo').value;
+
+            const userData = {
+                username: inputUsername,
+                password: password,
+                complete_name: completeName,
+                company_name: companyName,
+                company_address: companyAddress,
+                company_email: companyEmail,
+                company_phone: companyPhone,
+                company_logo: companyLogo
+            };
+
+            let res;
+            if (username) {
+                // Update existing user
+                res = await fetch(`/admin/users/${username}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+            } else {
+                // Create new user
+                res = await fetch('/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+            }
+
+            if (res.ok) {
+                alert('User saved successfully');
+                hideForm();
+                fetchUsers();
+            } else {
+                const error = await res.json();
+                alert('Error: ' + (error.description || 'Unknown error'));
+            }
+        }
+
+        function hideForm() {
+            document.getElementById('userForm').style.display = 'none';
+        }
+
+        // Initial load
+        fetchUsers();
+    </script>
+</body>
+</html>
