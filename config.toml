@@ -1,0 +1,32 @@
+[api_keys]
+together_ai = "56c8eeff9971269d7a7e625ff88e8a83a34a556003a5c87c289ebe9a3d8a3d2c"
+etherscan_api_key = "GMYHA5TS18EXDF29XNSVU32VMZFHZDRMXN"
+
+[coin_gecko]
+base_url = "https://api.coingecko.com/api/v3"
+
+[logging]
+level = "DEBUG"
+log_file = "logs/terminusa.log"
+
+[Company]
+name = "User Company Name"
+
+[Client]
+full_name = "User Full Name"
+
+[Contact_Us]
+email = "support@terminusa.com"
+
+[agent_info]
+Your_Name = "Terminusa Agent"
+Your_Title = "Tax Specialist"
+Your_Tax_Firm = "Ten Titanics Technologies"
+
+[smtp]
+server = "smtp-relay.brevo.com"
+port = 587
+username = "8cb47f001@smtp-brevo.com"
+password = "k2ftR98yxzO7LDCg"
+email_from = "no-reply@tentitanics.com"
+email_subject = "Password Reset Request"

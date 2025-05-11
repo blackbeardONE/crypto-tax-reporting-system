@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Analytics Data</h1>
+<pre id="analyticsData">Loading...</pre>
+
+<script>
+    async function fetchAnalytics() {
+        const response = await fetch('/admin/analytics/');
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('analyticsData').textContent = JSON.stringify(data, null, 2);
+        } else {
+            document.getElementById('analyticsData').textContent = 'Failed to load analytics data.';
+        }
+    }
+
+    fetchAnalytics();
+</script>
+
+{% include '_admin_nav_overlay.html' %}
+{% endblock %}

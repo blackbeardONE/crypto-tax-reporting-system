@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Log Viewer</title>
+    <style>
+        body { font-family: monospace, monospace; background-color: #1e1e1e; color: #d4d4d4; padding: 20px; }
+        #log-container { white-space: pre-wrap; background-color: #252526; padding: 10px; border-radius: 5px; height: 600px; overflow-y: scroll; }
+        button { margin-top: 10px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h1>Terminusa Log Viewer</h1>
+    <div id="log-container">Loading logs...</div>
+    <button onclick="loadLogs()">Refresh Logs</button>
+
+    <script>
+        async function loadLogs() {
+            const response = await fetch('/admin/logs/fetch');
+            const data = await response.json();
+            if (data.error) {
+                document.getElementById('log-container').textContent = data.error;
+            } else {
+                document.getElementById('log-container').textContent = data.logs.join('');
+            }
+        }
+        window.onload = loadLogs;
+    </script>
+</body>
+</html>

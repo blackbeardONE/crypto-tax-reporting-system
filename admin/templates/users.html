@@ -2,23 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Panel - User Management</title>
+    <title>User Management - Admin Panel</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-        tr:hover { background-color: #f5f5f5; }
-        button { margin: 5px; }
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%; padding: 6px; margin: 4px 0; box-sizing: border-box;
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #4b0082;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        #userForm {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            max-width: 600px;
+        }
+        #userForm input {
+            width: 100%;
+            padding: 6px;
+            margin: 4px 0;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
     <h1>User Management</h1>
-    <button onclick="showCreateForm()">Create New User</button>
     <table id="usersTable">
         <thead>
             <tr>
@@ -26,6 +47,7 @@
                 <th>Complete Name</th>
                 <th>Company Name</th>
                 <th>Company Email</th>
+                <th>Company Phone</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -34,156 +56,154 @@
         </tbody>
     </table>
 
-    <div id="userForm" style="display:none; margin-top:20px;">
-        <h2 id="formTitle">Create User</h2>
-        <form id="form" onsubmit="submitForm(event)">
-            <input type="hidden" id="username" name="username" />
-            <label>Username:</label><br/>
-            <input type="text" id="inputUsername" name="inputUsername" required /><br/>
-            <label>Password:</label><br/>
-            <input type="password" id="password" name="password" required /><br/>
-            <label>Complete Name:</label><br/>
-            <input type="text" id="completeName" name="completeName" required /><br/>
-            <label>Company Name:</label><br/>
-            <input type="text" id="companyName" name="companyName" required /><br/>
-            <label>Company Address:</label><br/>
-            <input type="text" id="companyAddress" name="companyAddress" required /><br/>
-            <label>Company Email:</label><br/>
-            <input type="email" id="companyEmail" name="companyEmail" required /><br/>
-            <label>Company Phone:</label><br/>
-            <input type="text" id="companyPhone" name="companyPhone" required /><br/>
-            <label>Company Logo URL:</label><br/>
-            <input type="text" id="companyLogo" name="companyLogo" /><br/><br/>
-            <button type="submit">Save</button>
-            <button type="button" onclick="hideForm()">Cancel</button>
-        </form>
-    </div>
+    <h2 id="formTitle">Add New User</h2>
+    <form id="userForm">
+        <input type="hidden" id="username" name="username" />
+        <label>Username:</label><br />
+        <input type="text" id="inputUsername" name="inputUsername" required /><br />
+        <label>Password:</label><br />
+        <input type="password" id="password" name="password" required /><br />
+        <label>Complete Name:</label><br />
+        <input type="text" id="complete_name" name="complete_name" required /><br />
+        <label>Company Name:</label><br />
+        <input type="text" id="company_name" name="company_name" required /><br />
+        <label>Company Address:</label><br />
+        <input type="text" id="company_address" name="company_address" /><br />
+        <label>Company Email:</label><br />
+        <input type="email" id="company_email" name="company_email" required /><br />
+        <label>Company Phone:</label><br />
+        <input type="text" id="company_phone" name="company_phone" /><br />
+        <label>Company Logo URL:</label><br />
+        <input type="text" id="company_logo" name="company_logo" /><br />
+        <button type="submit" id="submitBtn">Add User</button>
+        <button type="button" id="cancelBtn" style="display:none;">Cancel</button>
+    </form>
 
     <script>
+        const usersTableBody = document.querySelector("#usersTable tbody");
+        const userForm = document.getElementById("userForm");
+        const formTitle = document.getElementById("formTitle");
+        const submitBtn = document.getElementById("submitBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        let editingUser = null;
+
         async function fetchUsers() {
-            const res = await fetch('/admin/users');
-            const users = await res.json();
-            const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = '';
-            for (const username in users) {
-                const user = users[username];
+            const response = await fetch('/admin/users');
+            const users = await response.json();
+            usersTableBody.innerHTML = '';
+            users.forEach(user => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${username}</td>
-                    <td>${user.complete_name || ''}</td>
-                    <td>${user.company_name || ''}</td>
-                    <td>${user.company_email || ''}</td>
+                    <td>${user.username}</td>
+                    <td>${user.complete_name}</td>
+                    <td>${user.company_name}</td>
+                    <td>${user.company_email}</td>
+                    <td>${user.company_phone}</td>
                     <td>
-                        <button onclick="editUser('${username}')">Edit</button>
-                        <button onclick="deleteUser('${username}')">Delete</button>
+                        <button onclick="editUser('${user.username}')">Edit</button>
+                        <button onclick="deleteUser('${user.username}')">Delete</button>
                     </td>
                 `;
-                tbody.appendChild(tr);
-            }
-        }
-
-        function showCreateForm() {
-            document.getElementById('formTitle').textContent = 'Create User';
-            document.getElementById('username').value = '';
-            document.getElementById('inputUsername').value = '';
-            document.getElementById('inputUsername').disabled = false;
-            document.getElementById('password').value = '';
-            document.getElementById('completeName').value = '';
-            document.getElementById('companyName').value = '';
-            document.getElementById('companyAddress').value = '';
-            document.getElementById('companyEmail').value = '';
-            document.getElementById('companyPhone').value = '';
-            document.getElementById('companyLogo').value = '';
-            document.getElementById('userForm').style.display = 'block';
+                usersTableBody.appendChild(tr);
+            });
         }
 
         async function editUser(username) {
-            const res = await fetch(`/admin/users/${username}`);
-            if (!res.ok) {
-                alert('Failed to fetch user data');
-                return;
+            const response = await fetch(`/admin/users/${username}`);
+            if (response.ok) {
+                const user = await response.json();
+                editingUser = user.username;
+                formTitle.textContent = `Edit User: ${user.username}`;
+                submitBtn.textContent = "Update User";
+                cancelBtn.style.display = "inline";
+
+                document.getElementById("inputUsername").value = user.username;
+                document.getElementById("inputUsername").disabled = true;
+                document.getElementById("password").value = "";
+                document.getElementById("complete_name").value = user.complete_name || "";
+                document.getElementById("company_name").value = user.company_name || "";
+                document.getElementById("company_address").value = user.company_address || "";
+                document.getElementById("company_email").value = user.company_email || "";
+                document.getElementById("company_phone").value = user.company_phone || "";
+                document.getElementById("company_logo").value = user.company_logo || "";
+            } else {
+                alert("Failed to fetch user details.");
             }
-            const user = await res.json();
-            document.getElementById('formTitle').textContent = 'Edit User';
-            document.getElementById('username').value = username;
-            document.getElementById('inputUsername').value = username;
-            document.getElementById('inputUsername').disabled = true;
-            document.getElementById('password').value = '';
-            document.getElementById('completeName').value = user.complete_name || '';
-            document.getElementById('companyName').value = user.company_name || '';
-            document.getElementById('companyAddress').value = user.company_address || '';
-            document.getElementById('companyEmail').value = user.company_email || '';
-            document.getElementById('companyPhone').value = user.company_phone || '';
-            document.getElementById('companyLogo').value = user.company_logo || '';
-            document.getElementById('userForm').style.display = 'block';
         }
 
         async function deleteUser(username) {
-            if (!confirm(`Delete user ${username}?`)) return;
-            const res = await fetch(`/admin/users/${username}`, { method: 'DELETE' });
-            if (res.ok) {
-                alert('User deleted');
-                fetchUsers();
-            } else {
-                alert('Failed to delete user');
+            if (confirm(`Are you sure you want to delete user ${username}?`)) {
+                const response = await fetch(`/admin/users/${username}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert("User deleted successfully.");
+                    fetchUsers();
+                } else {
+                    alert("Failed to delete user.");
+                }
             }
         }
 
-        async function submitForm(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const inputUsername = document.getElementById('inputUsername').value;
-            const password = document.getElementById('password').value;
-            const completeName = document.getElementById('completeName').value;
-            const companyName = document.getElementById('companyName').value;
-            const companyAddress = document.getElementById('companyAddress').value;
-            const companyEmail = document.getElementById('companyEmail').value;
-            const companyPhone = document.getElementById('companyPhone').value;
-            const companyLogo = document.getElementById('companyLogo').value;
-
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const userData = {
-                username: inputUsername,
-                password: password,
-                complete_name: completeName,
-                company_name: companyName,
-                company_address: companyAddress,
-                company_email: companyEmail,
-                company_phone: companyPhone,
-                company_logo: companyLogo
+                username: document.getElementById("inputUsername").value,
+                password: document.getElementById("password").value,
+                complete_name: document.getElementById("complete_name").value,
+                company_name: document.getElementById("company_name").value,
+                company_address: document.getElementById("company_address").value,
+                company_email: document.getElementById("company_email").value,
+                company_phone: document.getElementById("company_phone").value,
+                company_logo: document.getElementById("company_logo").value
             };
 
-            let res;
-            if (username) {
-                // Update existing user
-                res = await fetch(`/admin/users/${username}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
-            } else {
-                // Create new user
-                res = await fetch('/admin/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
+            let url = '/admin/users';
+            let method = 'POST';
+
+            if (editingUser) {
+                url = `/admin/users/${editingUser}`;
+                method = 'PUT';
+                // Username cannot be changed during edit
+                userData.username = editingUser;
+                // If password is empty, remove it to avoid overwriting
+                if (!userData.password) {
+                    delete userData.password;
+                }
             }
 
-            if (res.ok) {
-                alert('User saved successfully');
-                hideForm();
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                alert(editingUser ? "User updated successfully." : "User added successfully.");
+                userForm.reset();
+                editingUser = null;
+                formTitle.textContent = "Add New User";
+                submitBtn.textContent = "Add User";
+                cancelBtn.style.display = "none";
+                document.getElementById("inputUsername").disabled = false;
                 fetchUsers();
             } else {
-                const error = await res.json();
-                alert('Error: ' + (error.description || 'Unknown error'));
+                const errorData = await response.json();
+                alert("Error: " + (errorData.description || "Unknown error"));
             }
-        }
+        });
 
-        function hideForm() {
-            document.getElementById('userForm').style.display = 'none';
-        }
+        cancelBtn.addEventListener('click', () => {
+            editingUser = null;
+            userForm.reset();
+            formTitle.textContent = "Add New User";
+            submitBtn.textContent = "Add User";
+            cancelBtn.style.display = "none";
+            document.getElementById("inputUsername").disabled = false;
+        });
 
-        // Initial load
+        // Initial fetch of users
         fetchUsers();
     </script>
 </body>
