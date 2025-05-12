@@ -1,187 +1,149 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Reports - Admin Panel</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-        th {
-            background-color: #4b0082;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        button {
-            padding: 5px 10px;
-            margin: 2px;
-            cursor: pointer;
-        }
-        #reportForm {
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            max-width: 600px;
-        }
-        #reportForm input {
-            width: 100%;
-            padding: 6px;
-            margin: 4px 0;
-            box-sizing: border-box;
-        }
-    </style>
-</head>
-<body>
-    <h1>Reports Management</h1>
-    <table id="reportsTable">
-        <thead>
-            <tr>
-                <th>Report ID</th>
-                <th>User ID</th>
-                <th>Generated At</th>
-                <th>File Path</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Report rows will be populated here -->
-        </tbody>
-    </table>
+{% extends "base.html" %}
+{% block content %}
+<h1>Reports Management</h1>
+<table id="reportsTable">
+    <thead>
+        <tr>
+            <th>Report ID</th>
+            <th>User ID</th>
+            <th>Generated At</th>
+            <th>File Path</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Report rows will be populated here -->
+    </tbody>
+</table>
 
-    <h2 id="formTitle">Add New Report</h2>
-    <form id="reportForm">
-        <input type="hidden" id="reportId" name="reportId" />
-        <label>Report ID:</label><br />
-        <input type="text" id="inputReportId" name="inputReportId" required /><br />
-        <label>User ID:</label><br />
-        <input type="text" id="userId" name="userId" required /><br />
-        <label>Generated At:</label><br />
-        <input type="datetime-local" id="generatedAt" name="generatedAt" required /><br />
-        <label>File Path:</label><br />
-        <input type="text" id="filePath" name="filePath" required /><br />
-        <button type="submit" id="submitBtn">Add Report</button>
-        <button type="button" id="cancelBtn" style="display:none;">Cancel</button>
-    </form>
+<h2 id="formTitle">Add New Report</h2>
+<form id="reportForm">
+    <input type="hidden" id="reportId" name="reportId" />
+    <label>Report ID:</label><br />
+    <input type="text" id="inputReportId" name="inputReportId" required /><br />
+    <label>User ID:</label><br />
+    <input type="text" id="userId" name="userId" required /><br />
+    <label>Generated At:</label><br />
+    <input type="datetime-local" id="generatedAt" name="generatedAt" required /><br />
+    <label>File Path:</label><br />
+    <input type="text" id="filePath" name="filePath" required /><br />
+    <button type="submit" id="submitBtn">Add Report</button>
+    <button type="button" id="cancelBtn" style="display:none;">Cancel</button>
+</form>
 
-    <script>
-        const reportsTableBody = document.querySelector("#reportsTable tbody");
-        const reportForm = document.getElementById("reportForm");
-        const formTitle = document.getElementById("formTitle");
-        const submitBtn = document.getElementById("submitBtn");
-        const cancelBtn = document.getElementById("cancelBtn");
+<script>
+    const reportsTableBody = document.querySelector("#reportsTable tbody");
+    const reportForm = document.getElementById("reportForm");
+    const formTitle = document.getElementById("formTitle");
+    const submitBtn = document.getElementById("submitBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
 
-        let editingReport = null;
+    let editingReport = null;
 
-        async function fetchReports() {
-            const response = await fetch('/admin/reports/');
-            const reports = await response.json();
-            reportsTableBody.innerHTML = '';
-            for (const [id, report] of Object.entries(reports)) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${id}</td>
-                    <td>${report.user_id}</td>
-                    <td>${report.generated_at}</td>
-                    <td>${report.file_path}</td>
-                    <td>
-                        <button onclick="editReport('${id}')">Edit</button>
-                        <button onclick="deleteReport('${id}')">Delete</button>
-                    </td>
-                `;
-                reportsTableBody.appendChild(tr);
-            }
+    async function fetchReports() {
+        const response = await fetch('/admin/reports/');
+        const reports = await response.json();
+        reportsTableBody.innerHTML = '';
+        for (const [id, report] of Object.entries(reports)) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${id}</td>
+                <td>${report.user_id}</td>
+                <td>${report.generated_at}</td>
+                <td>${report.file_path}</td>
+                <td>
+                    <button onclick="editReport('${id}')">Edit</button>
+                    <button onclick="deleteReport('${id}')">Delete</button>
+                </td>
+            `;
+            reportsTableBody.appendChild(tr);
         }
+    }
 
-        async function editReport(id) {
-            const response = await fetch(`/admin/reports/${id}`);
+    async function editReport(id) {
+        const response = await fetch(`/admin/reports/${id}`);
+        if (response.ok) {
+            const report = await response.json();
+            editingReport = id;
+            formTitle.textContent = `Edit Report: ${id}`;
+            submitBtn.textContent = "Update Report";
+            cancelBtn.style.display = "inline";
+
+            document.getElementById("inputReportId").value = id;
+            document.getElementById("inputReportId").disabled = true;
+            document.getElementById("userId").value = report.user_id;
+            document.getElementById("generatedAt").value = report.generated_at;
+            document.getElementById("filePath").value = report.file_path;
+        } else {
+            alert("Failed to fetch report details.");
+        }
+    }
+
+    async function deleteReport(id) {
+        if (confirm(`Are you sure you want to delete report ${id}?`)) {
+            const response = await fetch(`/admin/reports/${id}`, { method: 'DELETE' });
             if (response.ok) {
-                const report = await response.json();
-                editingReport = id;
-                formTitle.textContent = `Edit Report: ${id}`;
-                submitBtn.textContent = "Update Report";
-                cancelBtn.style.display = "inline";
-
-                document.getElementById("inputReportId").value = id;
-                document.getElementById("inputReportId").disabled = true;
-                document.getElementById("userId").value = report.user_id;
-                document.getElementById("generatedAt").value = report.generated_at;
-                document.getElementById("filePath").value = report.file_path;
-            } else {
-                alert("Failed to fetch report details.");
-            }
-        }
-
-        async function deleteReport(id) {
-            if (confirm(`Are you sure you want to delete report ${id}?`)) {
-                const response = await fetch(`/admin/reports/${id}`, { method: 'DELETE' });
-                if (response.ok) {
-                    alert("Report deleted successfully.");
-                    fetchReports();
-                } else {
-                    alert("Failed to delete report.");
-                }
-            }
-        }
-
-        reportForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const reportData = {
-                id: document.getElementById("inputReportId").value,
-                user_id: document.getElementById("userId").value,
-                generated_at: document.getElementById("generatedAt").value,
-                file_path: document.getElementById("filePath").value
-            };
-
-            let url = '/admin/reports/';
-            let method = 'POST';
-
-            if (editingReport) {
-                url = `/admin/reports/${editingReport}`;
-                method = 'PUT';
-                reportData.id = editingReport;
-            }
-
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(reportData)
-            });
-
-            if (response.ok) {
-                alert(editingReport ? "Report updated successfully." : "Report added successfully.");
-                reportForm.reset();
-                editingReport = null;
-                formTitle.textContent = "Add New Report";
-                submitBtn.textContent = "Add Report";
-                cancelBtn.style.display = "none";
-                document.getElementById("inputReportId").disabled = false;
+                alert("Report deleted successfully.");
                 fetchReports();
             } else {
-                const errorData = await response.json();
-                alert("Error: " + (errorData.description || "Unknown error"));
+                alert("Failed to delete report.");
             }
+        }
+    }
+
+    reportForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const reportData = {
+            id: document.getElementById("inputReportId").value,
+            user_id: document.getElementById("userId").value,
+            generated_at: document.getElementById("generatedAt").value,
+            file_path: document.getElementById("filePath").value
+        };
+
+        let url = '/admin/reports/';
+        let method = 'POST';
+
+        if (editingReport) {
+            url = `/admin/reports/${editingReport}`;
+            method = 'PUT';
+            reportData.id = editingReport;
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reportData)
         });
 
-        cancelBtn.addEventListener('click', () => {
-            editingReport = null;
+        if (response.ok) {
+            alert(editingReport ? "Report updated successfully." : "Report added successfully.");
             reportForm.reset();
+            editingReport = null;
             formTitle.textContent = "Add New Report";
             submitBtn.textContent = "Add Report";
             cancelBtn.style.display = "none";
             document.getElementById("inputReportId").disabled = false;
-        });
+            fetchReports();
+        } else {
+            const errorData = await response.json();
+            alert("Error: " + (errorData.description || "Unknown error"));
+        }
+    });
 
-        // Initial fetch of reports
-        fetchReports();
-    </script>
-</body>
-</html>
+    cancelBtn.addEventListener('click', () => {
+        editingReport = null;
+        reportForm.reset();
+        formTitle.textContent = "Add New Report";
+        submitBtn.textContent = "Add Report";
+        cancelBtn.style.display = "none";
+        document.getElementById("inputReportId").disabled = false;
+    });
+
+    // Initial fetch of reports
+    fetchReports();
+</script>
+
+{% include '_admin_nav_overlay.html' %}
+{% endblock %}

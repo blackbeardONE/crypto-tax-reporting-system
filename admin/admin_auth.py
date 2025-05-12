@@ -46,3 +46,8 @@ def logout():
 @admin_login_required
 def dashboard():
     return render_template('admin_dashboard.html')
+
+@admin_auth_bp.route('/dashboard_home')
+@admin_login_required
+def dashboard_home():
+    return render_template('visualizations.html')

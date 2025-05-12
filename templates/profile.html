@@ -4,136 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>User Profile - Terminusa Crypto Tax Reporting System</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background: linear-gradient(90deg, #4b0082 0%, #006400 100%);
-            color: white;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .profile-wrapper {
-            display: flex;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-        }
-        .profile-image {
-            background: radial-gradient(circle at center, #6a0dad 0%, #4b0082 100%);
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 2rem;
-            font-weight: 900;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
-        }
-        .profile-container {
-            background: white;
-            color: #4b0082;
-            border-radius: 20px 0 0 20px;
-            width: 400px;
-            padding: 3em 2.5em;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-        .profile-header {
-            font-weight: 700;
-            font-size: 1.75rem;
-            margin-bottom: 1.5em;
-            text-align: center;
-            color: #4b0082;
-        }
-        label {
-            display: block;
-            margin-top: 1em;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #4b0082;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 0.75em 1em;
-            margin-top: 0.5em;
-            border: 1px solid #a020f0;
-            border-radius: 9999px;
-            font-size: 1rem;
-            color: #4b0082;
-            outline-offset: 2px;
-            transition: border-color 0.2s ease-in-out;
-        }
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: #006400;
-            box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.5);
-        }
-        input[type="submit"] {
-            margin-top: 2em;
-            padding: 0.75em;
-            width: 100%;
-            background-color: #4b0082;
-            border: none;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-        input[type="submit"]:hover {
-            background-color: #6a0dad;
-        }
-        .message {
-            color: #22c55e;
-            margin-top: 1em;
-            text-align: center;
-            font-weight: 600;
-        }
-        @media (max-width: 768px) {
-            .profile-wrapper {
-                flex-direction: column;
-                max-height: none;
-                border-radius: 0;
-                box-shadow: none;
-            }
-            .profile-image {
-                border-radius: 0;
-                height: 150px;
-                font-size: 1.5rem;
-            }
-            .profile-container {
-                border-radius: 0;
-                width: 100%;
-                padding: 2em 1.5em;
-                box-shadow: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
 </head>
 <body>
     <div class="profile-wrapper" role="main">
         <div class="profile-image" aria-label="Terminusa logo and branding" role="img">
-            TERMINUSA
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjNGIwMDgyIi8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ4IiBmb250LXdlaWdodD0iOTAwIiBmaWxsPSJ3aGl0ZSIgbGV0dGVyLXNwYWNpbmc9IjAuMWVtIj4KICAgIFRFUk1JTlVTQQo8L3RleHQ+Cjwvc3ZnPgo=" alt="TERMINUSA Logo" />
         </div>
         <div class="profile-container">
             <form method="post" action="{{ url_for('auth.profile') }}" aria-labelledby="profile-header" role="form">
                 <h1 class="profile-header" id="profile-header">User Profile</h1>
-                <div id="message" role="alert" style="color: #22c55e; margin-top: 1em; text-align: center; font-weight: 600;">
+                <div id="message" role="alert" class="message">
                     {% if message %}
                     {{ message }}
                     {% endif %}
@@ -175,7 +56,7 @@
                     };
                     if (data.password !== data.confirm_password) {
                         messageDiv.textContent = 'Passwords do not match.';
-                        messageDiv.style.color = 'red';
+                        messageDiv.className = 'alert-error';
                         return;
                     }
                     try {
@@ -189,14 +70,14 @@
                         const result = await response.json();
                         if (response.ok) {
                             messageDiv.textContent = result.message || 'Profile updated successfully.';
-                            messageDiv.style.color = '#22c55e';
+                            messageDiv.className = 'alert-success';
                         } else {
                             messageDiv.textContent = result.error || 'Failed to update profile.';
-                            messageDiv.style.color = 'red';
+                            messageDiv.className = 'alert-error';
                         }
                     } catch (error) {
                         messageDiv.textContent = 'Error updating profile.';
-                        messageDiv.style.color = 'red';
+                        messageDiv.className = 'alert-error';
                     }
                 });
             </script>

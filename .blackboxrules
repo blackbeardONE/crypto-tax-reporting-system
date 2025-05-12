@@ -1,0 +1,51 @@
+-Only modify code directly relevant to the specific request. Avoid changing unrelated functionality.
+-Never replace code with placeholders like `# ... rest of the processing ... `. Always include complete code.
+-Break problems into smaller steps. Think through each step separately before implementing.
+-Always provide a complete PLAN with REASONING based on evidence from code and logs before making changes.
+-Explain you OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
+-Break down monolithic files. Implement Modularization.
+-Always start the project with comprehensive log management system with proper web log viewer, logging levels and log rotation.
+-Default terminal profile is Git Bash. Use command that works in Git Bash.
+-Never create files with prefixes like "_new,_fixed,_enhanced,_v1,_v2,_v3,_final,.new,.fixed,.enhanced,.v1,.v2,.v3,.final. Instead, edit the original file. If stuck at persistent edit tooli issue or permission issuem, stop and ask for help.
+-If you are having issues editing a file. Create a new file, delete the old file and rename the new file using the name of the old file.
+-Use TOML Technology for cofiguration files
+-Use the files inside reference folder as reference for Together AI implementation.
+-Use Together AI API key: 56c8eeff9971269d7a7e625ff88e8a83a34a556003a5c87c289ebe9a3d8a3d2c
+
+General guidelines:
+-Terminusa is a Crypto Tax Reporting System
+--Problem: Traders struggle to manually track transactions across exchanges for tax purposes.
+--Solution: Develop an AI tool that aggregates transaction histories, calculates gains/losses, and generates tax-ready reports. Use free APIs (e.g., CoinGecko) to fetch data and Together AI API for template generation.
+-Create from scratch the admin panel/backend in admin folder. Use admin panel for user management, user subscription management, billing, reports, analytics, frontend settings and frontend style & design.
+-Enhance the style & design of frontend
+-Add registration and login functionality connected to backend (admin folder)
+--User registration and profile must contain (must be recorded in backend):
+---Username
+---Password
+---Complete Name
+---Company Name
+---Company Address
+---Company Email
+---Company Phone Number
+---Company Logo
+
+Do not touch the style and design
+login.html
+registration.html
+forgot_password.html
+dashboard.html
+_navbar.html
+
+
+For LOGO refer to the following instructions/approaches:
+Here is the inline SVG logo:
+<svg width="300" height="80" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="80" fill="#4b0082"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+        font-family="Arial Black, Arial, sans-serif" font-size="48" font-weight="900" fill="white" letter-spacing="0.1em">
+    TERMINUSA
+  </text>
+</svg>
+
+Here is the base64-encoded SVG image for use as an <img> source:
+<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjNGIwMDgyIi8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ4IiBmb250LXdlaWdodD0iOTAwIiBmaWxsPSJ3aGl0ZSIgbGV0dGVyLXNwYWNpbmc9IjAuMWVtIj4KICAgIFRFUk1JTlVTQQo8L3RleHQ+Cjwvc3ZnPgo=" alt="TERMINUSA Logo" />

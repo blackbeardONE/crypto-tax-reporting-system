@@ -1,31 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Log Viewer</title>
-    <style>
-        body { font-family: monospace, monospace; background-color: #1e1e1e; color: #d4d4d4; padding: 20px; }
-        #log-container { white-space: pre-wrap; background-color: #252526; padding: 10px; border-radius: 5px; height: 600px; overflow-y: scroll; }
-        button { margin-top: 10px; padding: 5px 10px; }
-    </style>
-</head>
-<body>
-    <h1>Terminusa Log Viewer</h1>
-    <div id="log-container">Loading logs...</div>
-    <button onclick="loadLogs()">Refresh Logs</button>
+{% extends "base.html" %}
 
-    <script>
-        async function loadLogs() {
-            const response = await fetch('/admin/logs/fetch');
-            const data = await response.json();
-            if (data.error) {
-                document.getElementById('log-container').textContent = data.error;
-            } else {
-                document.getElementById('log-container').textContent = data.logs.join('');
-            }
-        }
-        window.onload = loadLogs;
-    </script>
-</body>
-</html>
+{% block navbar %}
+<!-- Remove navbar and navigation button on this page -->
+{% endblock %}
+
+{% block head %}
+<style>
+  /* Remove top padding on body for log viewer page to reduce white space */
+  body {
+    padding-top: 0 !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Terminusa Log Viewer</h1>
+<div id="log-container" style="white-space: pre-wrap; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; height: 600px; overflow-y: auto; font-family: monospace;"></div>
+<div style="margin-top: 10px;">
+  <button id="refreshBtn">Refresh Logs</button>
+  <button id="clearBtn">Clear Logs</button>
+</div>
+
+<script>
+  const logContainer = document.getElementById('log-container');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  async function loadLogs() {
+    const response = await fetch('/admin/logs/fetch');
+    const data = await response.json();
+    if (data.error) {
+      logContainer.textContent = data.error;
+    } else {
+      logContainer.textContent = data.logs.join('');
+      // Auto scroll to bottom
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+  }
+
+  refreshBtn.addEventListener('click', loadLogs);
+
+  clearBtn.addEventListener('click', () => {
+    logContainer.textContent = '';
+  });
+
+  window.onload = loadLogs;
+</script>
+
+{% endblock %}

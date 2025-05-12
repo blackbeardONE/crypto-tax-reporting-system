@@ -101,13 +101,23 @@
                     <td>${user.company_email}</td>
                     <td>${user.company_phone}</td>
                     <td>
-                        <button onclick="editUser('${user.username}')">Edit</button>
-                        <button onclick="deleteUser('${user.username}')">Delete</button>
+                        <button class="editBtn" data-username="${user.username}">Edit</button>
+                        <button class="deleteBtn" data-username="${user.username}">Delete</button>
                     </td>
                 `;
                 usersTableBody.appendChild(tr);
             });
         }
+
+        usersTableBody.addEventListener('click', async (event) => {
+            if (event.target.classList.contains('editBtn')) {
+                const username = event.target.getAttribute('data-username');
+                await editUser(username);
+            } else if (event.target.classList.contains('deleteBtn')) {
+                const username = event.target.getAttribute('data-username');
+                await deleteUser(username);
+            }
+        });
 
         async function editUser(username) {
             const response = await fetch(`/admin/users/${username}`);

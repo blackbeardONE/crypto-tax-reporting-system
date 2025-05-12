@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #4b0082;
+    }
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .kpi {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #4b0082;
+      margin-bottom: 5px;
+    }
+    .kpi-label {
+      font-size: 1rem;
+      color: #666;
+    }
+    canvas {
+      max-width: 100%;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="card">
+      <div class="kpi" id="totalUsers">0</div>
+      <div class="kpi-label">Total Users</div>
+    </div>
+    <div class="card">
+      <div class="kpi" id="activeSubscriptions">0</div>
+      <div class="kpi-label">Active Subscriptions</div>
+    </div>
+    <div class="card">
+      <div class="kpi" id="totalRevenue">$0</div>
+      <div class="kpi-label">Total Revenue</div>
+    </div>
+    <div class="card">
+      <canvas id="userGrowthChart"></canvas>
+    </div>
+    <div class="card">
+      <canvas id="subscriptionPlanChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // Sample data - replace with real data fetched from backend API
+    const totalUsers = 1234;
+    const activeSubscriptions = 987;
+    const totalRevenue = 45678;
+
+    document.getElementById('totalUsers').textContent = totalUsers;
+    document.getElementById('activeSubscriptions').textContent = activeSubscriptions;
+    document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString();
+
+    // User Growth Line Chart
+    const ctxUserGrowth = document.getElementById('userGrowthChart').getContext('2d');
+    const userGrowthChart = new Chart(ctxUserGrowth, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        datasets: [{
+          label: 'New Users',
+          data: [50, 75, 150, 100, 200, 175, 225],
+          borderColor: '#4b0082',
+          backgroundColor: 'rgba(75, 0, 130, 0.2)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Subscription Plan Pie Chart
+    const ctxSubscriptionPlan = document.getElementById('subscriptionPlanChart').getContext('2d');
+    const subscriptionPlanChart = new Chart(ctxSubscriptionPlan, {
+      type: 'pie',
+      data: {
+        labels: ['Basic', 'Pro', 'Enterprise'],
+        datasets: [{
+          label: 'Subscription Plans',
+          data: [300, 500, 200],
+          backgroundColor: ['#4b0082', '#7b68ee', '#9370db'],
+          hoverOffset: 30
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { enabled: true }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

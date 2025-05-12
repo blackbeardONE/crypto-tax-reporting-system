@@ -10,9 +10,22 @@ logger = setup_logger()
 @frontend_settings_bp.before_request
 def require_admin_login():
     if not session.get('username'):
-        return redirect(url_for('admin_auth.login'))
+        return redirect(url_for('auth.login'))
 
 @frontend_settings_bp.route('/', methods=['GET'])
+@admin_login_required
+def frontend_settings_page():
+    from flask import render_template
+    logger.info("Rendering frontend settings page")
+    return render_template('settings.html')
+
+@frontend_settings_bp.route('/test-page', methods=['GET'])
+@admin_login_required
+def test_page():
+    logger.info("Serving test page for frontend settings blueprint")
+    return "<html><body><h1>Test Page - Frontend Settings Blueprint</h1></body></html>"
+
+@frontend_settings_bp.route('/api', methods=['GET'])
 @admin_login_required
 def get_settings():
     db = SessionLocal()

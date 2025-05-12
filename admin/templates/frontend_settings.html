@@ -1,73 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Frontend Settings - Admin Panel</title>
-    <style>
-        textarea {
-            width: 100%;
-            height: 400px;
-            font-family: monospace;
-            font-size: 14px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #4b0082;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #6a0dad;
-        }
-    </style>
-</head>
-<body>
-    <h1>Frontend Settings</h1>
-    <form id="settingsForm">
-        <textarea id="settingsTextarea" aria-label="Frontend settings JSON"></textarea><br />
-        <button type="submit">Save Settings</button>
-    </form>
+{% extends "base.html" %}
+{% block content %}
+<h1>Frontend Settings</h1>
+<form id="settingsForm">
+    <textarea id="settingsTextarea" aria-label="Frontend settings JSON"></textarea><br />
+    <button type="submit">Save Settings</button>
+</form>
 
-    <script>
-        async function loadSettings() {
-            const response = await fetch('/admin/frontend-settings/');
-            if (response.ok) {
-                const settings = await response.json();
-                document.getElementById('settingsTextarea').value = JSON.stringify(settings, null, 4);
-            } else {
-                alert('Failed to load settings.');
-            }
+<script>
+    async function loadSettings() {
+        const response = await fetch('/admin/frontend-settings/');
+        if (response.ok) {
+            const settings = await response.json();
+            document.getElementById('settingsTextarea').value = JSON.stringify(settings, null, 4);
+        } else {
+            alert('Failed to load settings.');
         }
+    }
 
-        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            let settings;
-            try {
-                settings = JSON.parse(document.getElementById('settingsTextarea').value);
-            } catch (err) {
-                alert('Invalid JSON format.');
-                return;
-            }
-            const response = await fetch('/admin/frontend-settings/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(settings)
-            });
-            if (response.ok) {
-                alert('Settings saved successfully.');
-            } else {
-                alert('Failed to save settings.');
-            }
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        let settings;
+        try {
+            settings = JSON.parse(document.getElementById('settingsTextarea').value);
+        } catch (err) {
+            alert('Invalid JSON format.');
+            return;
+        }
+        const response = await fetch('/admin/frontend-settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settings)
         });
+        if (response.ok) {
+            alert('Settings saved successfully.');
+        } else {
+            alert('Failed to save settings.');
+        }
+    });
 
-        loadSettings();
-    </script>
-</body>
-</html>
+    loadSettings();
+</script>
+
+{% include '_admin_nav_overlay.html' %}
+{% endblock %}

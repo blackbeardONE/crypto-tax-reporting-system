@@ -1,62 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f6f8;
-            color: #333;
-        }
-        nav {
-            margin-bottom: 30px;
-            background-color: #4b0082;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        nav a {
-            margin-right: 20px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 16px;
-            transition: color 0.3s ease;
-        }
-        nav a:hover {
-            color: #d1c4e9;
-        }
-        h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            color: #4b0082;
-        }
-        @media (max-width: 600px) {
-            nav {
-                display: flex;
-                flex-wrap: wrap;
-            }
-            nav a {
-                margin-bottom: 10px;
-                flex: 1 1 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>Admin Dashboard</h1>
-    <nav>
-        <a href="{{ url_for('admin.manage_users') }}">User Management</a>
-        <a href="{{ url_for('subscription.get_subscriptions') }}">Subscription Management</a>
-        <a href="{{ url_for('billing.get_invoices') }}">Billing Management</a>
-        <a href="{{ url_for('reports.get_reports') }}">Reports</a>
-        <a href="{{ url_for('analytics.get_analytics') }}">Analytics</a>
-        <a href="{{ url_for('frontend_settings.get_settings') }}">Frontend Settings</a>
-        <a href="{{ url_for('log_viewer.view_logs') }}">Log Viewer</a>
-        <a href="{{ url_for('admin_auth.logout') }}">Logout</a>
-    </nav>
-    {% include '_admin_nav_overlay.html' %}
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+{% include '_admin_nav.html' %}
+
+<main class="dashboard-content" role="main" aria-label="Admin Dashboard Main Content">
+  <section class="stats-cards" aria-label="Key Metrics">
+    <article class="card" tabindex="0">
+      <h2>1234</h2>
+      <p>Total Users</p>
+    </article>
+    <article class="card" tabindex="0">
+      <h2>987</h2>
+      <p>Active Subscriptions</p>
+    </article>
+    <article class="card" tabindex="0">
+      <h2>$45,678</h2>
+      <p>Total Revenue</p>
+    </article>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,50 @@
+/* General container styling */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Admin Dashboard heading */
+h1 {
+    color: #4b0082;
+    font-weight: 900;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Iframe styling */
+iframe#contentFrame,
+iframe#visualizationFrame {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Navigation menu links */
+#navMenu a {
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+/* Active nav link */
+#navMenu a.active {
+    background-color: #7b1fa2;
+    color: white;
+}
+
+/* Logo styling */
+.logo img {
+    max-width: 170px;
+    height: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .container {
+        padding: 0.5rem;
+    }
+}

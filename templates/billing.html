@@ -4,123 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Billing & Subscription - Terminusa Crypto Tax Reporting System</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f9fafb;
-            color: #111827;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-top: 2em;
-        }
-        .container {
-            background: white;
-            padding: 2.5em 3em;
-            border-radius: 12px;
-            max-width: 900px;
-            width: 100%;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-                0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-        h1 {
-            font-weight: 700;
-            font-size: 1.75rem;
-            margin-bottom: 1.5em;
-            text-align: center;
-        }
-        .subscription-plan {
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 1.5em;
-            margin-bottom: 2em;
-            background-color: #f3f4f6;
-        }
-        .subscription-plan h2 {
-            margin: 0 0 0.5em 0;
-            font-weight: 600;
-            color: #374151;
-        }
-        .subscription-plan p {
-            margin: 0.25em 0;
-            color: #6b7280;
-        }
-        .subscription-actions button {
-            margin-top: 1em;
-            padding: 0.5em 1.5em;
-            background-color: #a6ff00;
-            border: none;
-            color: #111827;
-            font-weight: 700;
-            font-size: 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .subscription-actions button:hover {
-            background-color: #84cc16;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 2em;
-        }
-        th, td {
-            border: 1px solid #d1d5db;
-            padding: 0.75em 1em;
-            text-align: left;
-            color: #374151;
-        }
-        th {
-            background-color: #e5e7eb;
-            font-weight: 600;
-        }
-        .payment-methods {
-            margin-top: 2em;
-        }
-        .payment-methods h2 {
-            font-weight: 600;
-            color: #374151;
-        }
-        .payment-methods p {
-            color: #6b7280;
-        }
-        .add-payment-method {
-            margin-top: 1em;
-        }
-        .add-payment-method input[type="text"] {
-            padding: 0.5em 1em;
-            border: 1px solid #d1d5db;
-            border-radius: 9999px;
-            font-size: 1rem;
-            width: 300px;
-            margin-right: 1em;
-            outline-offset: 2px;
-            transition: border-color 0.2s ease-in-out;
-        }
-        .add-payment-method input[type="text"]:focus {
-            border-color: #a6ff00;
-            box-shadow: 0 0 0 3px rgb(166 255 0 / 0.5);
-        }
-        .add-payment-method button {
-            padding: 0.5em 1.5em;
-            background-color: #4b0082;
-            border: none;
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .add-payment-method button:hover {
-            background-color: #6a0dad;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
 </head>
 <body>
     <main class="container" role="main">
@@ -130,7 +14,7 @@
             <p>Monthly Price: $0</p>
             <p>Features: Basic report generation, limited API calls</p>
             <div class="subscription-actions">
-                <button aria-label="Upgrade Plan" id="upgrade-plan-btn">Upgrade Plan</button>
+                <button aria-label="Upgrade Plan" id="upgrade-plan-btn" class="btn">Upgrade Plan</button>
             </div>
         </section>
 
@@ -163,7 +47,7 @@
             <div class="add-payment-method">
                 <label for="new-payment-method" class="sr-only">Add new payment method</label>
                 <input type="text" id="new-payment-method" placeholder="Add new payment method (e.g., card number)" />
-                <button aria-label="Add payment method" id="add-payment-method-btn">Add</button>
+                <button aria-label="Add payment method" id="add-payment-method-btn" class="btn">Add</button>
             </div>
         </section>
     </main>
