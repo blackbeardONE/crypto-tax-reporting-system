@@ -1,0 +1,201 @@
+<style>
+  #navToggle {
+    position: fixed;
+    top: 80px; /* moved down to avoid logo overlap */
+    right: 20px;
+    background-color: #4b0082;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    cursor: grab;
+    z-index: 1050; /* increased z-index */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto; /* ensure clickable */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  #navMenu {
+    position: fixed;
+    background-color: #4b0082;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    z-index: 1050; /* increased z-index */
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  #navMenu a {
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  #navMenu a:hover {
+    background-color: #6a0dad;
+  }
+
+  /* Responsive adjustments for smaller devices */
+  @media (max-width: 600px) {
+    #navToggle {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      top: 60px; /* adjusted for smaller screens */
+      right: 10px;
+    }
+    #navMenu {
+      max-width: 95vw;
+      max-height: 70vh;
+      border-radius: 6px;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      flex-direction: column;
+      padding: 0.5rem;
+    }
+    #navMenu a {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      white-space: normal;
+      text-align: left;
+      margin: 2px 0;
+    }
+  }
+</style>
+
+<button id="navToggle" aria-label="Toggle navigation menu">&#9776;</button>
+<nav id="navMenu" aria-label="Main navigation">
+  <a id="linkBack" href="javascript:history.back()">Back</a>
+  <a id="linkDashboard">Admin Dashboard</a>
+  <a id="linkUserManagement">User Management</a>
+  <a id="linkSubscriptionManagement">Subscription Management</a>
+  <a id="linkBillingManagement">Billing Management</a>
+  <a id="linkReports">Reports</a>
+  <a id="linkAnalytics">Analytics</a>
+  <a id="linkFrontendSettings">Front End Settings</a>
+  <a id="linkLogViewer">Log Viewer</a>
+  <a href="{{ url_for('admin_auth.logout') }}">Logout</a>
+</nav>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  navToggle.addEventListener('click', () => {
+    if (navMenu.style.display === 'flex') {
+      navMenu.style.display = 'none';
+    } else {
+      const rect = navToggle.getBoundingClientRect();
+      let leftPos = rect.left + window.scrollX;
+      if (window.innerWidth <= 600) {
+        if (leftPos + navMenu.offsetWidth > window.innerWidth - 10) {
+          leftPos = window.innerWidth - navMenu.offsetWidth - 10;
+        }
+        if (leftPos < 10) leftPos = 10;
+      }
+      navMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+      navMenu.style.left = leftPos + 'px';
+      navMenu.style.right = 'auto';
+      navMenu.style.bottom = 'auto';
+      navMenu.style.transform = 'none';
+      navMenu.style.display = 'flex';
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!navMenu.contains(event.target) && event.target !== navToggle) {
+      navMenu.style.display = 'none';
+    }
+  });
+
+  navToggle.style.cursor = 'grab';
+
+  let isDragging = false;
+  let offsetX, offsetY;
+
+  navToggle.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    offsetX = e.clientX - navToggle.getBoundingClientRect().left;
+    offsetY = e.clientY - navToggle.getBoundingClientRect().top;
+    navToggle.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+
+      const maxLeft = window.innerWidth - navToggle.offsetWidth;
+      const maxTop = window.innerHeight - navToggle.offsetHeight;
+      if (newLeft < 0) newLeft = 0;
+      if (newTop < 0) newTop = 0;
+      if (newLeft > maxLeft) newLeft = maxLeft;
+      if (newTop > maxTop) newTop = maxTop;
+
+      navToggle.style.left = newLeft + 'px';
+      navToggle.style.top = newTop + 'px';
+      navToggle.style.right = 'auto';
+      navToggle.style.bottom = 'auto';
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      navToggle.style.cursor = 'grab';
+    }
+  });
+
+  // Attach event listeners for navigation links
+  function navigateTo(url) {
+    if (window.parent && window.parent.showContent && window.parent.showDashboard) {
+      if (url === 'dashboard') {
+        window.parent.showDashboard();
+      } else {
+        window.parent.showContent(url);
+      }
+    } else {
+      console.error('Parent functions not found');
+    }
+  }
+
+  document.getElementById('linkDashboard').addEventListener('click', () => {
+    navigateTo('dashboard');
+  });
+  document.getElementById('linkUserManagement').addEventListener('click', () => {
+    navigateTo("{{ url_for('admin.manage_users') }}");
+  });
+  document.getElementById('linkSubscriptionManagement').addEventListener('click', () => {
+    navigateTo("{{ url_for('subscription.get_subscriptions') }}");
+  });
+  document.getElementById('linkBillingManagement').addEventListener('click', () => {
+    navigateTo("{{ url_for('billing.get_invoices') }}");
+  });
+  document.getElementById('linkReports').addEventListener('click', () => {
+    navigateTo("{{ url_for('reports.get_reports') }}");
+  });
+  document.getElementById('linkAnalytics').addEventListener('click', () => {
+    navigateTo("{{ url_for('analytics.get_analytics') }}");
+  });
+  document.getElementById('linkFrontendSettings').addEventListener('click', () => {
+    navigateTo("{{ url_for('frontend_settings.frontend_settings_page') }}");
+  });
+  document.getElementById('linkLogViewer').addEventListener('click', () => {
+    navigateTo("{{ url_for('log_viewer.view_logs') }}");
+  });
+</script>
+</create_file>

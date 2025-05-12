@@ -283,46 +283,46 @@ x<!DOCTYPE html>
 
         renderReportHistory();
 
-            // Download Reports button handler (placeholder)
-            const downloadReportsBtn = document.getElementById('downloadReportsBtn');
-            downloadReportsBtn.addEventListener('click', () => {
-                const selectedReports = [];
-                const checkboxes = reportHistoryList.querySelectorAll('input[type="checkbox"]:checked');
-                checkboxes.forEach(cb => selectedReports.push(cb.value));
-                if (selectedReports.length === 0) {
-                    alert('Please select at least one report to download.');
-                    return;
-                }
-                alert('Downloading reports: ' + selectedReports.join(', '));
-                // Implement actual download logic here
-            });
+        // Download Reports button handler (placeholder)
+        const downloadReportsBtn = document.getElementById('downloadReportsBtn');
+        downloadReportsBtn.addEventListener('click', () => {
+            const selectedReports = [];
+            const checkboxes = reportHistoryList.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => selectedReports.push(cb.value));
+            if (selectedReports.length === 0) {
+                alert('Please select at least one report to download.');
+                return;
+            }
+            alert('Downloading reports: ' + selectedReports.join(', '));
+            // Implement actual download logic here
+        });
 
-            // Generate Report button handler
-            const generateReportBtn = document.getElementById('generateReportBtn');
-            generateReportBtn.addEventListener('click', () => {
-                const walletAddressInput = document.getElementById('walletAddress');
-                const reportNameInput = document.getElementById('reportName');
-                const walletAddress = walletAddressInput.value.trim();
-                const reportName = reportNameInput.value.trim();
+        // Generate Report button handler
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        generateReportBtn.addEventListener('click', () => {
+            const walletAddressInput = document.getElementById('walletAddress');
+            const reportNameInput = document.getElementById('reportName');
+            const walletAddress = walletAddressInput.value.trim();
+            const reportName = reportNameInput.value.trim();
 
-                if (!walletAddress) {
-                    alert('Please enter a Wallet Address.');
-                    walletAddressInput.focus();
-                    return;
-                }
-                if (!reportName) {
-                    alert('Please enter a Report Name.');
-                    reportNameInput.focus();
-                    return;
-                }
+            if (!walletAddress) {
+                alert('Please enter a Wallet Address.');
+                walletAddressInput.focus();
+                return;
+            }
+            if (!reportName) {
+                alert('Please enter a Report Name.');
+                reportNameInput.focus();
+                return;
+            }
 
-                // Placeholder for report generation logic using walletAddress and reportName
-                // For now, just display in the output textarea
-                const outputArea = document.getElementById('taxReportOutput');
-                outputArea.value = `Generating report for Wallet Address: ${walletAddress}\nReport Name: ${reportName}\n\n...report generation in progress...`;
+            // Placeholder for report generation logic using walletAddress and reportName
+            // For now, just display in the output textarea
+            const outputArea = document.getElementById('taxReportOutput');
+            outputArea.value = `Generating report for Wallet Address: ${walletAddress}\nReport Name: ${reportName}\n\n...report generation in progress...`;
 
-                // TODO: Implement actual report generation logic here
-            });
+            // TODO: Implement actual report generation logic here
+        });
     </script>
 </body>
 </html>
